@@ -1,17 +1,133 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz with Session</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
 
-<html>
-  <head>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
+        #quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-  <body>
-    <!-- do not change this code -->
-    <h1>Quiz</h1>
-    <div id="questions"></div>
-    <button id="submit">Submit</button>
-    <div id="score"></div>
+        .question {
+            margin-bottom: 20px;
+        }
 
-    <script type="text/javascript" src="./script.js"></script>
-  </body>
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="quiz-container">
+    <div class="question" data-question="1">
+        <p>What is the capital of France?</p>
+        <div class="options">
+            <input type="radio" name="q1" value="Paris"> Paris
+            <input type="radio" name="q1" value="London"> London
+            <input type="radio" name="q1" value="Berlin"> Berlin
+        </div>
+    </div>
+
+    <div class="question" data-question="2">
+        <p>Which planet is known as the Red Planet?</p>
+        <div class="options">
+            <input type="radio" name="q2" value="Mars"> Mars
+            <input type="radio" name="q2" value="Venus"> Venus
+            <input type="radio" name="q2" value="Jupiter"> Jupiter
+        </div>
+    </div>
+
+    <!-- Add more questions as needed -->
+
+    <button onclick="submitQuiz()">Submit</button>
+</div>
+
+<script>
+    // Load saved progress from session storage on page load
+    window.onload = function () {
+        loadProgress();
+    };
+
+    // Save progress in session storage when an option is selected
+    function saveProgress() {
+        var questions = document.querySelectorAll('.question');
+        var progress = {};
+
+        questions.forEach(function (question) {
+            var questionNumber = question.getAttribute('data-question');
+            var selectedOption = document.querySelector('input[name="q' + questionNumber + '"]:checked');
+
+            if (selectedOption) {
+                progress['q' + questionNumber] = selectedOption.value;
+            }
+        });
+
+        sessionStorage.setItem('progress', JSON.stringify(progress));
+    }
+
+    // Load saved progress from session storage
+    function loadProgress() {
+        var savedProgress = sessionStorage.getItem('progress');
+
+        if (savedProgress) {
+            savedProgress = JSON.parse(savedProgress);
+
+            for (var questionNumber in savedProgress) {
+                var selectedOption = savedProgress[questionNumber];
+                document.querySelector('input[name="' + questionNumber + '"][value="' + selectedOption + '"]').checked = true;
+            }
+        }
+    }
+
+    // Submit quiz and display score
+    function submitQuiz() {
+        saveProgress();
+
+        // Calculate and display the score
+        var questions = document.querySelectorAll('.question');
+        var correctAnswers = 0;
+
+        questions.forEach(function (question) {
+            var questionNumber = question.getAttribute('data-question');
+            var correctOption = getCorrectOption(questionNumber);
+
+            var selectedOption = document.querySelector('input[name="q' + questionNumber + '"]:checked');
+
+            if (selectedOption && selectedOption.value === correctOption) {
+                correctAnswers++;
+            }
+        });
+
+        // Display the score
+        var scoreMessage = "Your score is " + correctAnswers + " out of " + questions.length + ".";
+        alert(scoreMessage);
+
+        // Store the score in local storage
+        localStorage.setItem('score', correctAnswers.toString());
+    }
+
+    // Helper function to get correct option for a question
+    function getCorrectOption(questionNumber) {
+        // Replace this with your logic to get the correct answer based on the question number
+        // For simplicity, assuming the correct answer is always the first option
+        return document.querySelector('input[name="q' + questionNumber + '"]').value;
+    }
+</script>
+
+</body>
 </html>
